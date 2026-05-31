@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dado Virtual</title>
+    <style>
+        :root {
+            --fondo: #F4F7F6;
+            --texto: #1A202C;
+            --primario: #0066CC; /* Azul de alta visibilidad */
+            --primario-hover: #004C99;
+            --blanco: #FFFFFF;
+            --borde: #A0AEC0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--fondo);
+            color: var(--texto);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .contenedor {
+            background: var(--blanco);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            border: 3px solid var(--borde);
+            text-align: center;
+        }
+
+        /* EL TAPETE DE JUEGO (Ocupa la parte superior del contenedor) */
+        .tapete {
+            background-color: #E2E8F0;
+            border: 3px dashed var(--borde);
+            border-radius: 20px;
+            padding: 50px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        /* DISEÑO DEL DADO GIGANTE */
+        .dado {
+            background: var(--blanco);
+            border: 5px solid #1A202C;
+            width: 140px; /* Un poco más grande para llenar el espacio */
+            height: 140px;
+            border-radius: 25px;
+            box-shadow: 0 10px 16px rgba(0,0,0,0.15);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 14px;
+            transition: transform 0.1s ease;
+        }
+
+        /* Puntos negros del dado */
+        .punto {
+            background-color: #1A202C;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            margin: auto;
+        }
+
+        /* BOTÓN GIGANTE ABAJO */
+        .btn-lanzar {
+            display: block;
+            width: 100%;
+            background-color: var(--primario);
+            color: var(--blanco);
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 24px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0, 102, 204, 0.3);
+            transition: background 0.2s;
+        }
+
+        .btn-lanzar:hover {
+            background-color: var(--primario-hover);
+        }
+
+        /* ANIMACIÓN DE AGITAR */
+        .agitando {
+            animation: agitar 0.3s infinite;
+        }
+
+        @keyframes agitar {
+            0% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-2px, -3px) rotate(-5deg); }
+            100% { transform: translate(2px, 3px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <div class="tapete" id="tapete">
+            </div>
+
+        <button class="btn-lanzar" id="btnLanzar" onclick="tirar()">¡TIRAR DADO!</button>
+    </div>
+
+    <script>
+        const tapete = document.getElementById('tapete');
+        const boton = document.getElementById('btnLanzar');
+
+        // Coordenadas de los puntos (Filas y Columnas del 1 al 3)
+        const mapasPuntos = {
+            1: [[2,2]],
+            2: [[1,1], [3,3]],
+            3: [[1,1], [2,2], [3,3]],
+            4: [[1,1], [1,3], [3,1], [3,3]],
+            5: [[1,1], [1,3], [2,2], [3,1], [3,3]],
+            6: [[1,1], [1,3], [2,1], [2,3], [3,1], [3,3]]
+        };
+
+        function crearDadoHTML(valor) {
+            const dadoDiv = document.createElement('div');
+            dadoDiv.className = 'dado';
+            
+            const puntos = mapasPuntos[valor] || [];
+            puntos.forEach(coord => {
+                const punto = document.createElement('div');
+                punto.className = 'punto';
+                punto.style.gridRowStart = coord[0];
+                punto.style.gridColumnStart = coord[1];
+                dadoDiv.appendChild(punto);
+            });
+            return dadoDiv;
+        }
+
+        // Muestra un 6 de forma vistosa al cargar la web por primera vez
+        function estadoInicial() {
+            tapete.appendChild(crearDadoHTML(6));
+        }
+
+        function tirar() {
+            boton.disabled = true;
+            boton.innerText = "Lanzando...";
+
+            const dadoActual = tapete.querySelector('.dado');
+            if (dadoActual) dadoActual.classList.add('agitando');
+
+            setTimeout(() => {
+                tapete.innerHTML = ''; 
+                const resultado = Math.floor(Math.random() * 6) + 1;
+                tapete.appendChild(crearDadoHTML(resultado));
+
+                boton.disabled = false;
+                boton.innerText = "¡TIRAR DADO!";
+            }, 500);
+        }
+
+        estadoInicial();
+    </script>
+</body>
+</html>

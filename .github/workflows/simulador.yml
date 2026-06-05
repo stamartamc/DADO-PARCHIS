@@ -1,0 +1,55 @@
+name: Simulador de Tráfico Real
+
+on:
+  schedule:
+    # Se ejecuta automáticamente cada 4 horas todos los días
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Permite activarlo manualmente
+
+jobs:
+  simular-visita:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configurar Navegador Virtual
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+
+    - name: Simular Interacción Humana Aleatoria
+      run: |
+        echo "Arrancando visita simulada a dadoparchis.com..."
+        
+        # 1. Visita la página principal imitando un móvil Android
+        USER_AGENT="Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+        curl -s -A "$USER_AGENT" https://dadoparchis.com > /dev/null
+        
+        # Espera aleatoria inicial de entre 2 y 5 segundos antes de empezar a jugar
+        ESPERA_INICIAL=$(( RANDOM % 4 + 2 ))
+        sleep $ESPERA_INICIAL
+        
+        # 2. Elegir el número total de clics de forma aleatoria entre tus opciones: 7, 12, 14 o 22
+        OPCIONES_CLICS=(7 12 14 22)
+        TOTAL_CLICS=${OPCIONES_CLICS[$(( RANDOM % 4 ))]}
+        echo "Este usuario virtual va a tirar el dado $TOTAL_CLICS veces."
+
+        # 3. Bucle de tiradas con pausas aleatorias
+        for (( i=1; i<=TOTAL_CLICS; i++ ))
+        do
+          # Genera un tiempo de espera aleatorio entre 1 y 4 segundos
+          TIEMPO_ESPERA=$(( RANDOM % 4 + 1 ))
+          
+          echo "Tirada número $i... Esperando $TIEMPO_ESPERA segundos para la siguiente."
+          curl -s -A "$USER_AGENT" "https://dadoparchis.com/?click=$i&rand=$RANDOM" > /dev/null
+          
+          sleep $TIEMPO_ESPERA
+        done
+        
+        # 4. Simular que el usuario cotillea la privacidad antes de irse (50% de probabilidad)
+        DECISION_PRIVACIDAD=$(( RANDOM % 2 ))
+        if [ $DECISION_PRIVACIDAD -eq 1 ]; then
+          echo "El usuario decide revisar la página de privacidad antes de cerrar..."
+          sleep $(( RANDOM % 3 + 1 ))
+          curl -s -A "$USER_AGENT" https://dadoparchis.com/privacidad.html > /dev/null
+        fi
+        
+        echo "Simulación completada con éxito."

@@ -1,55 +1,65 @@
-name: Simulador de Tráfico Real
+name: Simulador de Tráfico Real Multilocalización
 
 on:
   schedule:
     # Se ejecuta automáticamente cada 4 horas todos los días
     - cron: '0 */4 * * *'
-  workflow_dispatch: # Permite activarlo manualmente
+  workflow_dispatch: 
 
 jobs:
   simular-visita:
     runs-on: ubuntu-latest
     steps:
-    - name: Configurar Navegador Virtual
+    - name: Configurar Entorno Virtual
       run: |
         sudo apt-get update
         sudo apt-get install -y curl
 
-    - name: Simular Interacción Humana Aleatoria
+    - name: Simular Usuarios de Diferentes Países
       run: |
-        echo "Arrancando visita simulada a dadoparchis.com..."
-        
-        # 1. Visita la página principal imitando un móvil Android
         USER_AGENT="Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-        curl -s -A "$USER_AGENT" https://dadoparchis.com > /dev/null
         
-        # Espera aleatoria inicial de entre 2 y 5 segundos antes de empezar a jugar
-        ESPERA_INICIAL=$(( RANDOM % 4 + 2 ))
-        sleep $ESPERA_INICIAL
+        # Lista de proxies públicos y gratuitos de diferentes países (España, UK, Francia, Alemania, etc.)
+        # Estos servidores enmascaran la IP de GitHub simulando accesos locales
+        PROXIES=(
+          "http://185.242.107.130:80"   # Europa / España
+          "http://45.132.227.189:80"    # Europa Central
+          "http://178.62.193.19:8080"   # UK / Londres
+          "http://80.48.119.28:8080"    # Europa del Este
+        )
+
+        # Elegir un proxy al azar para esta sesión de juego
+        PROXY_ELEGIDO=${PROXIES[$(( RANDOM % 4 ))]}
+        echo "Simulando acceso de usuario a través del servidor local: $PROXY_ELEGIDO"
+
+        # 1. Entrada a la Home simulando la localización elegida
+        curl -s -x "$PROXY_ELEGIDO" -A "$USER_AGENT" https://dadoparchis.com > /dev/null || curl -s -A "$USER_AGENT" https://dadoparchis.com > /dev/null
         
-        # 2. Elegir el número total de clics de forma aleatoria entre tus opciones: 7, 12, 14 o 22
+        # Espera aleatoria humana
+        sleep $(( RANDOM % 4 + 2 ))
+
+        # 2. Número de clics aleatorio (7, 12, 14 o 22)
         OPCIONES_CLICS=(7 12 14 22)
         TOTAL_CLICS=${OPCIONES_CLICS[$(( RANDOM % 4 ))]}
-        echo "Este usuario virtual va a tirar el dado $TOTAL_CLICS veces."
+        echo "El usuario de esta localización va a tirar el dado $TOTAL_CLICS veces."
 
-        # 3. Bucle de tiradas con pausas aleatorias
+        # 3. Simulación de las tiradas con tiempos aleatorios (1 a 4 seg)
         for (( i=1; i<=TOTAL_CLICS; i++ ))
         do
-          # Genera un tiempo de espera aleatorio entre 1 y 4 segundos
           TIEMPO_ESPERA=$(( RANDOM % 4 + 1 ))
+          echo "Tirada $i de $TOTAL_CLICS desde IP enmascarada... Esperando $TIEMPO_ESPERA segundos."
           
-          echo "Tirada número $i... Esperando $TIEMPO_ESPERA segundos para la siguiente."
-          curl -s -A "$USER_AGENT" "https://dadoparchis.com/?click=$i&rand=$RANDOM" > /dev/null
+          # Lanza la petición usando el proxy para cambiar la ubicación del clic
+          curl -s -x "$PROXY_ELEGIDO" -A "$USER_AGENT" "https://dadoparchis.com/?click=$i&rand=$RANDOM" > /dev/null || curl -s -A "$USER_AGENT" "https://dadoparchis.com/?click=$i&rand=$RANDOM" > /dev/null
           
           sleep $TIEMPO_ESPERA
         done
-        
-        # 4. Simular que el usuario cotillea la privacidad antes de irse (50% de probabilidad)
-        DECISION_PRIVACIDAD=$(( RANDOM % 2 ))
-        if [ $DECISION_PRIVACIDAD -eq 1 ]; then
-          echo "El usuario decide revisar la página de privacidad antes de cerrar..."
+
+        # 4. Probabilidad del 50% de mirar la privacidad
+        if [ $(( RANDOM % 2 )) -eq 1 ]; then
+          echo "El usuario revisa la privacidad antes de salir..."
           sleep $(( RANDOM % 3 + 1 ))
-          curl -s -A "$USER_AGENT" https://dadoparchis.com/privacidad.html > /dev/null
+          curl -s -x "$PROXY_ELEGIDO" -A "$USER_AGENT" https://dadoparchis.com/privacidad.html > /dev/null || curl -s -A "$USER_AGENT" https://dadoparchis.com/privacidad.html > /dev/null
         fi
-        
-        echo "Simulación completada con éxito."
+
+        echo "Simulación internacional completada."

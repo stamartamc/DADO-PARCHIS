@@ -1,0 +1,17 @@
+{
+  "short_name": "DadoParchis",
+  "name": "Dado para Parchís",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/31/31201.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/dado/",
+  "background_color": "#F4F7F6",
+  "display": "standalone",
+  "theme_color": "#0066CC",
+  "orientation": "portrait"
+}

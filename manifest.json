@@ -9,7 +9,7 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/dado/",
+  "start_url": "/",
   "background_color": "#F4F7F6",
   "display": "standalone",
   "theme_color": "#0066CC",
